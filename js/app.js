@@ -12,7 +12,7 @@
 //sending a DELETE to this URL + '/' + task.objectId will delete an existing task
 var tasksUrl = 'https://api.parse.com/1/classes/tasks';
 
-angular.module('ToDoApp', [])
+angular.module('ToDoApp', ['ui.bootstrap'])
     .config(function($httpProvider) {
         //Parse required two extra headers sent with every HTTP request: X-Parse-Application-Id, X-Parse-REST-API-Key
         //the first needs to be set to your application's ID value
@@ -51,6 +51,27 @@ angular.module('ToDoApp', [])
             $http.put(tasksUrl + '/' + task.objectId, task)
                 .success(function() {
                    //we could give some feedback to the user
+                });
+        };
+
+        $scope.incrementVotes = function(task, amount) {
+            var postData = {
+                votes: {
+                    __op: 'Increment',
+                    amount: amount
+                }
+            };
+
+            $scope.updating = true;
+            $http.put(tasksUrl + '/' + task.objectId, postData)
+                .success(function(respData) {
+                   task.votes = respData.votes;
+                })
+                .error(function(err) {
+                    console.log(err);
+                })
+                .finally(function() {
+                    $scope.updating = false;
                 });
         };
     });
